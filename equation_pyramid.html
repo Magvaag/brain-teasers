@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equation Pyramid - Brain Teasers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 100%;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .pyramid-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pyramid-cell {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pyramid-cell:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .pyramid-cell.filled {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.6);
+        }
+
+        .pyramid-cell.error {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: rgba(244, 67, 54, 0.6);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .pyramid-cell input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            outline: none;
+        }
+
+        .pyramid-cell input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .operator {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn.primary {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.6);
+        }
+
+        .btn.primary:hover {
+            background: rgba(76, 175, 80, 0.5);
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            min-height: 30px;
+        }
+
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .error-msg {
+            color: #FF6B6B;
+            font-weight: bold;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .pyramid-cell {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+            
+            .game-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 Equation Pyramid</h1>
+        <p>Fill in the missing numbers to complete the pyramid equations!</p>
+    </div>
+
+    <div class="game-container">
+        <div class="pyramid" id="pyramid">
+            <!-- Pyramid will be generated by JavaScript -->
+        </div>
+
+        <div class="controls">
+            <button class="btn primary" onclick="checkSolution()">Check Solution</button>
+            <button class="btn" onclick="generatePuzzle()">New Puzzle</button>
+            <button class="btn" onclick="showHint()">💡 Hint</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let currentPuzzle = {};
+        let attempts = 0;
+
+        function generatePuzzle() {
+            // Generate a 4-level pyramid with missing numbers
+            const puzzle = {
+                level4: [Math.floor(Math.random() * 10) + 1, Math.floor(Math.random() * 10) + 1, Math.floor(Math.random() * 10) + 1, Math.floor(Math.random() * 10) + 1],
+                level3: [],
+                level2: [],
+                level1: []
+            };
+
+            // Calculate the complete solution
+            puzzle.level3 = [
+                puzzle.level4[0] + puzzle.level4[1],
+                puzzle.level4[1] + puzzle.level4[2],
+                puzzle.level4[2] + puzzle.level4[3]
+            ];
+
+            puzzle.level2 = [
+                puzzle.level3[0] + puzzle.level3[1],
+                puzzle.level3[1] + puzzle.level3[2]
+            ];
+
+            puzzle.level1 = [puzzle.level2[0] + puzzle.level2[1]];
+
+            // Create blanks (hide some numbers)
+            puzzle.blanks = new Set();
+            
+            // Hide 2-3 numbers from bottom row
+            for (let i = 0; i < 2; i++) {
+                puzzle.blanks.add(`4-${Math.floor(Math.random() * 4)}`);
+            }
+            
+            // Hide 1-2 numbers from middle rows
+            if (Math.random() > 0.5) {
+                puzzle.blanks.add(`3-${Math.floor(Math.random() * 3)}`);
+            }
+            if (Math.random() > 0.5) {
+                puzzle.blanks.add(`2-${Math.floor(Math.random() * 2)}`);
+            }
+
+            currentPuzzle = puzzle;
+            attempts = 0;
+            renderPuzzle();
+            document.getElementById('status').innerHTML = '';
+        }
+
+        function renderPuzzle() {
+            const pyramid = document.getElementById('pyramid');
+            pyramid.innerHTML = '';
+
+            // Level 1 (top)
+            const row1 = document.createElement('div');
+            row1.className = 'pyramid-row';
+            const cell1 = createCell(1, 0, currentPuzzle.level1[0]);
+            row1.appendChild(cell1);
+            pyramid.appendChild(row1);
+
+            // Level 2
+            const row2 = document.createElement('div');
+            row2.className = 'pyramid-row';
+            for (let i = 0; i < 2; i++) {
+                if (i > 0) {
+                    const plus = document.createElement('span');
+                    plus.className = 'operator';
+                    plus.textContent = '+';
+                    row2.appendChild(plus);
+                }
+                const cell = createCell(2, i, currentPuzzle.level2[i]);
+                row2.appendChild(cell);
+            }
+            pyramid.appendChild(row2);
+
+            // Level 3
+            const row3 = document.createElement('div');
+            row3.className = 'pyramid-row';
+            for (let i = 0; i < 3; i++) {
+                if (i > 0) {
+                    const plus = document.createElement('span');
+                    plus.className = 'operator';
+                    plus.textContent = '+';
+                    row3.appendChild(plus);
+                }
+                const cell = createCell(3, i, currentPuzzle.level3[i]);
+                row3.appendChild(cell);
+            }
+            pyramid.appendChild(row3);
+
+            // Level 4 (bottom)
+            const row4 = document.createElement('div');
+            row4.className = 'pyramid-row';
+            for (let i = 0; i < 4; i++) {
+                if (i > 0) {
+                    const plus = document.createElement('span');
+                    plus.className = 'operator';
+                    plus.textContent = '+';
+                    row4.appendChild(plus);
+                }
+                const cell = createCell(4, i, currentPuzzle.level4[i]);
+                row4.appendChild(cell);
+            }
+            pyramid.appendChild(row4);
+        }
+
+        function createCell(level, index, value) {
+            const cell = document.createElement('div');
+            cell.className = 'pyramid-cell';
+            cell.id = `cell-${level}-${index}`;
+
+            const isBlank = currentPuzzle.blanks.has(`${level}-${index}`);
+
+            if (isBlank) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.placeholder = '?';
+                input.addEventListener('input', (e) => {
+                    if (e.target.value && !isNaN(e.target.value)) {
+                        cell.classList.add('filled');
+                    } else {
+                        cell.classList.remove('filled');
+                    }
+                });
+                cell.appendChild(input);
+            } else {
+                cell.textContent = value;
+                cell.classList.add('filled');
+            }
+
+            return cell;
+        }
+
+        function checkSolution() {
+            attempts++;
+            let allCorrect = true;
+            let hasErrors = false;
+
+            // Clear previous error states
+            document.querySelectorAll('.pyramid-cell').forEach(cell => {
+                cell.classList.remove('error');
+            });
+
+            // Check each blank
+            currentPuzzle.blanks.forEach(blank => {
+                const [level, index] = blank.split('-').map(Number);
+                const cell = document.getElementById(`cell-${level}-${index}`);
+                const input = cell.querySelector('input');
+                
+                if (input) {
+                    const userValue = parseInt(input.value);
+                    const correctValue = getCurrentValue(level, index);
+                    
+                    if (userValue !== correctValue) {
+                        allCorrect = false;
+                        if (input.value) {
+                            cell.classList.add('error');
+                            hasErrors = true;
+                        }
+                    }
+                }
+            });
+
+            const status = document.getElementById('status');
+            if (allCorrect && !hasEmptyBlanks()) {
+                status.innerHTML = `<span class="success">🎉 Congratulations! You solved it in ${attempts} attempt${attempts === 1 ? '' : 's'}!</span>`;
+            } else if (hasErrors) {
+                status.innerHTML = `<span class="error-msg">❌ Some answers are incorrect. Try again!</span>`;
+            } else {
+                status.innerHTML = `<span class="error-msg">📝 Please fill in all the blanks first.</span>`;
+            }
+        }
+
+        function getCurrentValue(level, index) {
+            switch(level) {
+                case 1: return currentPuzzle.level1[index];
+                case 2: return currentPuzzle.level2[index];
+                case 3: return currentPuzzle.level3[index];
+                case 4: return currentPuzzle.level4[index];
+                default: return 0;
+            }
+        }
+
+        function hasEmptyBlanks() {
+            return Array.from(currentPuzzle.blanks).some(blank => {
+                const [level, index] = blank.split('-').map(Number);
+                const cell = document.getElementById(`cell-${level}-${index}`);
+                const input = cell.querySelector('input');
+                return !input || !input.value;
+            });
+        }
+
+        function showHint() {
+            const blanks = Array.from(currentPuzzle.blanks);
+            if (blanks.length === 0) return;
+
+            // Find an empty blank to give a hint for
+            const emptyBlank = blanks.find(blank => {
+                const [level, index] = blank.split('-').map(Number);
+                const cell = document.getElementById(`cell-${level}-${index}`);
+                const input = cell.querySelector('input');
+                return !input.value;
+            });
+
+            if (emptyBlank) {
+                const [level, index] = emptyBlank.split('-').map(Number);
+                const correctValue = getCurrentValue(level, index);
+                const status = document.getElementById('status');
+                status.innerHTML = `💡 Hint: One of the missing numbers is ${correctValue}`;
+            } else {
+                document.getElementById('status').innerHTML = `💡 All blanks are filled! Click "Check Solution" to see if they're correct.`;
+            }
+        }
+
+        // Initialize the game
+        generatePuzzle();
+    </script>
+</body>
+</html>
