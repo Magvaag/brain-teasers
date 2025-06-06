@@ -43,12 +43,23 @@
             margin-bottom: 15px;
         }
 
-        .target-display {
+        .top-displays {
             position: relative;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: -35px;
             z-index: 10;
+        }
+
+        .timer-display {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .target-display {
+            display: flex;
+            justify-content: flex-end;
         }
 
         .target-badge {
@@ -63,6 +74,18 @@
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
         }
 
+        .timer-badge {
+            background: rgba(33, 150, 243, 0.3);
+            border: 2px solid rgba(33, 150, 243, 0.6);
+            border-radius: 20px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+        }
+
         .target-number {
             font-size: 1.8rem;
             font-weight: bold;
@@ -70,6 +93,20 @@
         }
 
         .target-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .timer-time {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .timer-label {
             font-size: 0.9rem;
             opacity: 0.9;
             color: white;
@@ -366,6 +403,101 @@
             color: #4CAF50;
         }
 
+        .show-rounds {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .rounds-header {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s ease;
+            font-size: 0.85rem;
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .rounds-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .rounds-arrow {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .rounds-arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .rounds-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .rounds-content.expanded {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .rounds-list {
+            padding: 15px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            font-family: 'Courier New', monospace;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .round-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+
+        .round-header {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+
+        .round-tiles {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        .round-solutions {
+            margin-top: 5px;
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        .play-round-btn {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.6);
+            border-radius: 12px;
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .play-round-btn:hover {
+            background: rgba(76, 175, 80, 0.5);
+            transform: translateY(-1px);
+        }
+
         .success {
             color: #4CAF50;
             font-weight: bold;
@@ -573,10 +705,19 @@
 
         <div class="game-area">
             <div class="tiles-section">
-                <div class="target-display">
-                    <div class="target-badge">
-                        <div class="target-label">Target:</div>
-                        <div class="target-number" id="targetNumber">24</div>
+                <div class="top-displays">
+                    <div class="timer-display">
+                        <div class="timer-badge">
+                            <div class="timer-label">Time:</div>
+                            <div class="timer-time" id="timerDisplay">00:00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="target-display">
+                        <div class="target-badge">
+                            <div class="target-label">Target:</div>
+                            <div class="target-number" id="targetNumber">24</div>
+                        </div>
                     </div>
                 </div>
 
@@ -601,6 +742,86 @@
                 
                 <div class="attribution">
                     Based on <span class="korean">수식 피라미드</span> (Equation Pyramid) from Netflix's "The Devil's Plan: Death Room"
+                    
+                    <div class="show-rounds">
+                        <div class="rounds-header" onclick="toggleShowRounds()">
+                            📺 View Actual Show Rounds
+                            <div class="rounds-arrow" id="showRoundsArrow">▼</div>
+                        </div>
+                        <div class="rounds-content" id="showRoundsContent">
+                            <div class="rounds-list">
+                                <div class="round-item">
+                                    <div class="round-header">Round 1 - Target: 10</div>
+                                    <div class="round-tiles">×7 ÷5 +9 -5 ×2 +2 ÷8 ÷3 -8 ×3</div>
+                                    <div class="round-solutions">Solutions: JBD, BJD, JHC✓, IGC, ACH, dBC✓</div>
+                                    <button class="play-round-btn" onclick="playShowRound(1)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 2 - Target: 1</div>
+                                    <div class="round-tiles">÷4 +8 ×2 -3 +9 +1 ×7 ÷11 -6 ×8</div>
+                                    <div class="round-solutions">Solutions: GDC✓, FGI✓</div>
+                                    <button class="play-round-btn" onclick="playShowRound(2)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 3 - Target: 8</div>
+                                    <div class="round-tiles">+7 ÷9 ×2 -13 +15 ÷5 ×1 ÷3 -11 ×3</div>
+                                    <div class="round-solutions">Solutions: JHA✓, AJD, EIC</div>
+                                    <button class="play-round-btn" onclick="playShowRound(3)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 4 - Target: 11</div>
+                                    <div class="round-tiles">×3 ×13 -8 -14 ÷2 ÷7 ×9 ÷5 -1 ÷4</div>
+                                    <div class="round-solutions">Solutions: DIB, DIA✓, BCJ✓, JAI✓</div>
+                                    <button class="play-round-btn" onclick="playShowRound(4)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 5 - Target: 6</div>
+                                    <div class="round-tiles">÷14 ÷2 -10 ÷7 ×8 ÷5 ÷12 -5 -6 ÷4</div>
+                                    <div class="round-solutions">Solutions: BEC✓, ECF✓</div>
+                                    <button class="play-round-btn" onclick="playShowRound(5)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 6 - Target: 3</div>
+                                    <div class="round-tiles">÷9 -2 -10 ×6 ×3 -8 ×2 ×5 ÷7 ×4</div>
+                                    <div class="round-solutions">Solutions: IBG, ABE✓</div>
+                                    <button class="play-round-btn" onclick="playShowRound(6)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 7 - Target: 19</div>
+                                    <div class="round-tiles">-1 +2 +3 -4 ×5 ×6 ×7 -8 ×9 -10</div>
+                                    <div class="round-solutions">Solutions: CIH✓, DEA✓, EBG, GBF✓, DCE✓, IBE✓, ACF✓</div>
+                                    <button class="play-round-btn" onclick="playShowRound(7)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 8 - Target: 9</div>
+                                    <div class="round-tiles">-16 -14 ÷2 ÷8 ×12 ×4 ÷7 +10 +3 ÷5</div>
+                                    <div class="round-solutions">Solutions: ECI✓, FHC✓, DHC</div>
+                                    <button class="play-round-btn" onclick="playShowRound(8)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 9 - Target: 7</div>
+                                    <div class="round-tiles">-2 +12 ÷6 ×4 ÷2 +8 ×6 ÷10 -4 ×2</div>
+                                    <div class="round-solutions">Solutions: FAE✓</div>
+                                    <button class="play-round-btn" onclick="playShowRound(9)">Play This Round</button>
+                                </div>
+                                
+                                <div class="round-item">
+                                    <div class="round-header">Round 10 - Target: 17</div>
+                                    <div class="round-tiles">-10 ×4 ×9 ×5 ×2 +3 +1 ÷6 ÷8 ÷7</div>
+                                    <div class="round-solutions">Final round (incomplete data)</div>
+                                    <button class="play-round-btn" onclick="playShowRound(10)">Play This Round</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -681,9 +902,48 @@
         let totalCombinations = 0;
         let hintShown = false;
         let lastCheckedCombination = null;
+        let startTime = null;
+        let timerInterval = null;
 
         const operations = ['+', '-', '×', '÷'];
         const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 18, 20];
+
+        // Timer functions
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+            updateTimer();
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            startTime = null;
+            document.getElementById('timerDisplay').textContent = '00:00';
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = formattedTime;
+        }
+
+        function getElapsedTime() {
+            if (!startTime) return 0;
+            return Math.floor((Date.now() - startTime) / 1000);
+        }
 
         function generatePuzzle() {
             // Generate seed based on current date (same for everyone)
@@ -730,11 +990,17 @@
             foundCombinations = [];
             attemptHistory = [];
             hintShown = false;
+            currentHintCombination = null;
+            hintStep = 0;
             
             updateDisplay();
             
             // Update subtitle to show it's today's puzzle
             document.querySelector('.subtitle').textContent = `Today's Daily Puzzle (${dateString}) - Find combinations of 3 tiles that equal the target number!`;
+            
+            // Start timer
+            resetTimer();
+            startTimer();
         }
         
         function createSeededRandom(seed) {
@@ -941,6 +1207,7 @@
                 
                 // Check if all unique combinations found
                 if (foundCombinations.length === totalCombinations) {
+                    stopTimer();
                     setTimeout(() => {
                         showCelebration();
                     }, 1500);
@@ -965,9 +1232,17 @@
         function clearSelection() {
             selectedTiles = [];
             lastCheckedCombination = null;
+            // Reset hint if user clears selection
+            if (currentHintCombination && selectedTiles.length === 0) {
+                currentHintCombination = null;
+                hintStep = 0;
+            }
             updateSelectedDisplay();
             renderTiles();
         }
+
+        let currentHintCombination = null;
+        let hintStep = 0;
 
         function showHint() {
             // Find combinations that haven't been found yet
@@ -978,14 +1253,68 @@
                 );
             });
             
-            if (unfoundCombinations.length > 0) {
-                // Get a random unfound combination and show its first tile
-                const randomCombination = unfoundCombinations[Math.floor(Math.random() * unfoundCombinations.length)];
-                const firstTile = randomCombination.combination[0];
-                const message = `💡 Hint: Try starting with ${firstTile.operation}${firstTile.number}`;
-                document.getElementById('statusMessage').innerHTML = `<div class="hint-info">${message}</div>`;
-            } else {
+            if (unfoundCombinations.length === 0) {
                 const message = `🏆 You've found all ${totalCombinations} combinations! Great job!`;
+                document.getElementById('statusMessage').innerHTML = `<div class="hint-info">${message}</div>`;
+                return;
+            }
+            
+            // If we don't have a current hint combination, pick one and stick with it
+            if (!currentHintCombination) {
+                currentHintCombination = unfoundCombinations[0]; // Always pick the first one for consistency
+                hintStep = 0;
+            }
+            
+            // Check if the current hint combination is still valid (not found yet)
+            const isCurrentHintStillValid = unfoundCombinations.some(combo => 
+                combo.combination.every((tile, index) => tile.id === currentHintCombination.combination[index].id)
+            );
+            
+            if (!isCurrentHintStillValid) {
+                // Current hint combination was found, pick a new one
+                currentHintCombination = unfoundCombinations[0];
+                hintStep = 0;
+            }
+            
+            // Check if we're continuing with a previous hint
+            if (hintStep < 3) {
+                // Check if the user has selected the tiles we've hinted so far
+                const hintedTiles = currentHintCombination.combination.slice(0, hintStep);
+                const selectedMatchesHint = hintedTiles.every(hintTile => 
+                    selectedTiles.some(selectedTile => selectedTile.id === hintTile.id)
+                );
+                
+                if (selectedMatchesHint && selectedTiles.length === hintStep) {
+                    // Continue with the next tile in the same combination
+                    const nextTile = currentHintCombination.combination[hintStep];
+                    hintStep++;
+                    
+                    let message;
+                    if (hintStep === 1) {
+                        message = `💡 Hint: Try starting with ${nextTile.operation}${nextTile.number}`;
+                    } else if (hintStep === 2) {
+                        message = `💡 Hint: ...and continue with ${nextTile.operation}${nextTile.number}`;
+                    } else if (hintStep === 3) {
+                        message = `💡 Hint: ...and finish with ${nextTile.operation}${nextTile.number}`;
+                    }
+                    
+                    document.getElementById('statusMessage').innerHTML = `<div class="hint-info">${message}</div>`;
+                    return;
+                } else if (selectedTiles.length === 0 && hintStep > 0) {
+                    // User cleared selection, show the first hint again
+                    hintStep = 1;
+                    const firstTile = currentHintCombination.combination[0];
+                    const message = `💡 Hint: Try starting with ${firstTile.operation}${firstTile.number}`;
+                    document.getElementById('statusMessage').innerHTML = `<div class="hint-info">${message}</div>`;
+                    return;
+                }
+            }
+            
+            // Show the first hint if we haven't started yet
+            if (hintStep === 0) {
+                hintStep = 1;
+                const firstTile = currentHintCombination.combination[0];
+                const message = `💡 Hint: Try starting with ${firstTile.operation}${firstTile.number}`;
                 document.getElementById('statusMessage').innerHTML = `<div class="hint-info">${message}</div>`;
             }
         }
@@ -1040,11 +1369,17 @@
             attemptHistory = [];
             lastCheckedCombination = null;
             hintShown = false;
+            currentHintCombination = null;
+            hintStep = 0;
             
             updateDisplay();
             
             // Update subtitle to show it's a random puzzle
             document.querySelector('.subtitle').textContent = 'Random Puzzle - Find combinations of 3 tiles that equal the target number!';
+            
+            // Start timer
+            resetTimer();
+            startTimer();
         }
 
         function updateDisplay() {
@@ -1092,6 +1427,17 @@
         function showCelebration() {
             document.getElementById('celebrationCombinations').textContent = foundCombinations.length;
             document.getElementById('celebrationAttempts').textContent = attemptHistory.length;
+            
+            // Show completion time
+            const elapsed = getElapsedTime();
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update celebration message to include time
+            const celebrationMessage = document.querySelector('.celebration-message');
+            celebrationMessage.innerHTML = `You've found all possible combinations! Your mathematical skills are outstanding!<br><br>⏱️ Completed in: <strong>${timeText}</strong>`;
+            
             document.getElementById('celebrationOverlay').style.display = 'flex';
         }
 
@@ -1111,6 +1457,75 @@
                 content.classList.add('expanded');
                 arrow.classList.add('expanded');
             }
+        }
+
+        // Show rounds toggle function
+        function toggleShowRounds() {
+            const content = document.getElementById('showRoundsContent');
+            const arrow = document.getElementById('showRoundsArrow');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                arrow.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                arrow.classList.add('expanded');
+            }
+        }
+
+        // Show rounds data
+        const showRounds = {
+            1: { target: 10, tiles: ['×7', '÷5', '+9', '-5', '×2', '+2', '÷8', '÷3', '-8', '×3'] },
+            2: { target: 1, tiles: ['÷4', '+8', '×2', '-3', '+9', '+1', '×7', '÷11', '-6', '×8'] },
+            3: { target: 8, tiles: ['+7', '÷9', '×2', '-13', '+15', '÷5', '×1', '÷3', '-11', '×3'] },
+            4: { target: 11, tiles: ['×3', '×13', '-8', '-14', '÷2', '÷7', '×9', '÷5', '-1', '÷4'] },
+            5: { target: 6, tiles: ['÷14', '÷2', '-10', '÷7', '×8', '÷5', '÷12', '-5', '-6', '÷4'] },
+            6: { target: 3, tiles: ['÷9', '-2', '-10', '×6', '×3', '-8', '×2', '×5', '÷7', '×4'] },
+            7: { target: 19, tiles: ['-1', '+2', '+3', '-4', '×5', '×6', '×7', '-8', '×9', '-10'] },
+            8: { target: 9, tiles: ['-16', '-14', '÷2', '÷8', '×12', '×4', '÷7', '+10', '+3', '÷5'] },
+            9: { target: 7, tiles: ['-2', '+12', '÷6', '×4', '÷2', '+8', '×6', '÷10', '-4', '×2'] },
+            10: { target: 17, tiles: ['-10', '×4', '×9', '×5', '×2', '+3', '+1', '÷6', '÷8', '÷7'] }
+        };
+
+        // Play a specific show round
+        function playShowRound(roundNumber) {
+            const round = showRounds[roundNumber];
+            if (!round) return;
+            
+            // Set up the round
+            targetNumber = round.target;
+            currentTiles = round.tiles.map((tile, index) => {
+                const operation = tile.charAt(0);
+                const number = parseInt(tile.slice(1));
+                return { operation, number, id: index };
+            });
+            
+            // Calculate all possible combinations
+            calculateAllCombinations();
+            
+            // Reset game state
+            selectedTiles = [];
+            foundCombinations = [];
+            attemptHistory = [];
+            lastCheckedCombination = null;
+            hintShown = false;
+            currentHintCombination = null;
+            hintStep = 0;
+            
+            updateDisplay();
+            
+            // Update subtitle to show it's a show round
+            document.querySelector('.subtitle').textContent = `Show Round ${roundNumber} - Find combinations of 3 tiles that equal the target number!`;
+            
+            // Start timer
+            resetTimer();
+            startTimer();
+            
+            // Collapse the show rounds section
+            toggleShowRounds();
+            
+            // Show a message
+            document.getElementById('statusMessage').innerHTML = `<div class="hint-info">🎬 Now playing Show Round ${roundNumber} from "The Devil's Plan: Death Room"!</div>`;
         }
 
         // Keyboard support
